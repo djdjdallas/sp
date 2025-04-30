@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,9 +16,7 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-export default function RegisterPage() {
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
+export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState(null);
@@ -27,7 +25,21 @@ export default function RegisterPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  const handleRegister = async (e) => {
+  // Check if user is authenticated with a recovery token
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data, error } = await supabase.auth.getSession();
+
+      // If there's no active session with recovery token, redirect to login
+      if (error || !data.session) {
+        router.push("/auth/login");
+      }
+    };
+
+    checkSession();
+  }, [router, supabase]);
+
+  const handleResetPassword = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
@@ -46,48 +58,22 @@ export default function RegisterPage() {
     }
 
     try {
-      // Sign up the user
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
+      const { error } = await supabase.auth.updateUser({
         password,
-        options: {
-          data: {
-            full_name: fullName,
-          },
-        },
       });
 
-      if (authError) {
-        setError(authError.message);
-        return;
-      }
-
-      if (authData?.user) {
-        // Insert user profile into users table
-        const { error: profileError } = await supabase.from("users").insert({
-          id: authData.user.id,
-          email: authData.user.email,
-          full_name: fullName,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        });
-
-        if (profileError) {
-          console.error("Error creating user profile:", profileError);
-          setError("Failed to create user profile");
-          return;
-        }
-
+      if (error) {
+        setError(error.message);
+      } else {
         setSuccess(true);
-        // Redirect to dashboard or confirmation page after a delay
+        // Redirect to login page after successful password reset
         setTimeout(() => {
-          router.push("/dashboard");
-          router.refresh();
-        }, 2000);
+          router.push("/auth/login");
+        }, 3000);
       }
     } catch (err) {
-      console.error("Registration error:", err);
       setError("An unexpected error occurred. Please try again.");
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -97,14 +83,12 @@ export default function RegisterPage() {
     <div className="flex min-h-screen items-center justify-center px-4 py-12">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">
-            Create an account
-          </CardTitle>
+          <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
           <CardDescription>
-            Enter your details below to create your account
+            Create a new password for your account
           </CardDescription>
         </CardHeader>
-        <form onSubmit={handleRegister}>
+        <form onSubmit={handleResetPassword}>
           <CardContent className="space-y-4">
             {error && (
               <Alert variant="destructive">
@@ -112,44 +96,16 @@ export default function RegisterPage() {
               </Alert>
             )}
             {success && (
-              <Alert
-                variant="success"
-                className="bg-green-50 text-green-700 border-green-200"
-              >
+              <Alert className="bg-green-50 text-green-700 border-green-200">
                 <AlertDescription>
-                  Registration successful! Please check your email for
-                  verification.
+                  Your password has been successfully reset. Redirecting to
+                  login...
                 </AlertDescription>
               </Alert>
             )}
             <div className="space-y-2">
-              <label htmlFor="fullName" className="text-sm font-medium">
-                Full Name
-              </label>
-              <Input
-                id="fullName"
-                placeholder="John Doe"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium">
-                Email
-              </label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="hello@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
               <label htmlFor="password" className="text-sm font-medium">
-                Password
+                New Password
               </label>
               <Input
                 id="password"
@@ -161,7 +117,7 @@ export default function RegisterPage() {
             </div>
             <div className="space-y-2">
               <label htmlFor="confirmPassword" className="text-sm font-medium">
-                Confirm Password
+                Confirm New Password
               </label>
               <Input
                 id="confirmPassword"
@@ -173,13 +129,16 @@ export default function RegisterPage() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Creating Account..." : "Sign Up"}
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={loading || success}
+            >
+              {loading ? "Resetting..." : "Reset Password"}
             </Button>
             <div className="text-center text-sm">
-              Already have an account?{" "}
               <Link href="/auth/login" className="text-primary hover:underline">
-                Login
+                Back to login
               </Link>
             </div>
           </CardFooter>

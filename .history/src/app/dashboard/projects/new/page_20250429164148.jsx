@@ -25,7 +25,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ImageUpload } from "@/components/ui/image-upload";
 
 export default function NewProject() {
   const { user } = useAuth();
@@ -40,7 +39,6 @@ export default function NewProject() {
     domain_name: "",
     repo_url: "",
     live_url: "",
-    image_url: null,
   });
 
   const [loading, setLoading] = useState(false);
@@ -92,7 +90,6 @@ export default function NewProject() {
           domain_name: formData.domain_name,
           repo_url: formData.repo_url,
           live_url: formData.live_url,
-          image_url: formData.image_url,
         })
         .select();
 
@@ -235,22 +232,6 @@ export default function NewProject() {
               <label htmlFor="is_public" className="text-sm font-medium">
                 Make this project public
               </label>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Project Image</label>
-              <ImageUpload
-                onUploadComplete={(url) => {
-                  setFormData({
-                    ...formData,
-                    image_url: url,
-                  });
-                }}
-                storageBucket="project_images"
-              />
-              <p className="text-xs text-muted-foreground">
-                Upload a screenshot or logo for your project (optional)
-              </p>
             </div>
           </CardContent>
           <CardFooter>
