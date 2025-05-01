@@ -21,17 +21,6 @@ import {
   LockOpen,
   ShoppingBag,
 } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 
 export default function ProjectDetail({ params }) {
   const { user } = useAuth();
@@ -41,8 +30,6 @@ export default function ProjectDetail({ params }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [resolvedParams, setResolvedParams] = useState(null);
-  const [deleting, setDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState(null);
 
   // First, resolve the params
   useEffect(() => {
@@ -80,98 +67,6 @@ export default function ProjectDetail({ params }) {
 
     fetchProject();
   }, [user, resolvedParams, supabase]);
-
-  const handleDelete = async () => {
-    setDeleting(true);
-    setDeleteError(null);
-
-    try {
-      // Check and delete related records
-      const relatedChecks = await Promise.all([
-        supabase
-          .from("project_metrics")
-          .select("id")
-          .eq("project_id", project.id)
-          .limit(1),
-        supabase
-          .from("tasks")
-          .select("id")
-          .eq("project_id", project.id)
-          .limit(1),
-        supabase
-          .from("marketplace_listings")
-          .select("id")
-          .eq("project_id", project.id)
-          .limit(1),
-      ]);
-
-      // Delete project metrics if they exist
-      if (relatedChecks[0].data && relatedChecks[0].data.length > 0) {
-        const { error } = await supabase
-          .from("project_metrics")
-          .delete()
-          .eq("project_id", project.id);
-
-        if (error) throw error;
-      }
-
-      // Delete tasks if they exist
-      if (relatedChecks[1].data && relatedChecks[1].data.length > 0) {
-        const { error } = await supabase
-          .from("tasks")
-          .delete()
-          .eq("project_id", project.id);
-
-        if (error) throw error;
-      }
-
-      // Delete marketplace listings if they exist
-      if (relatedChecks[2].data && relatedChecks[2].data.length > 0) {
-        const { error } = await supabase
-          .from("marketplace_listings")
-          .delete()
-          .eq("project_id", project.id);
-
-        if (error) throw error;
-      }
-
-      // Delete the project
-      const { error: deleteError } = await supabase
-        .from("projects")
-        .delete()
-        .eq("id", project.id);
-
-      if (deleteError) {
-        throw deleteError;
-      }
-
-      // If project image exists, optionally delete it from storage
-      if (project.image_url) {
-        const imagePathMatch = project.image_url.match(/project_images\/(.+)$/);
-        if (imagePathMatch && imagePathMatch[1]) {
-          const imagePath = imagePathMatch[1];
-          const { error: storageError } = await supabase.storage
-            .from("project_images")
-            .remove([imagePath]);
-
-          if (storageError) {
-            console.error("Error deleting image:", storageError);
-            // Don't fail the entire delete if image deletion fails
-          }
-        }
-      }
-
-      // Redirect to projects page after successful deletion
-      router.push("/dashboard/projects");
-    } catch (err) {
-      console.error("Failed to delete project:", err);
-      setDeleteError(
-        err.message || "Failed to delete project. Please try again."
-      );
-    } finally {
-      setDeleting(false);
-    }
-  };
 
   const stageColors = {
     idea: "bg-yellow-100 text-yellow-800",
@@ -237,45 +132,15 @@ export default function ProjectDetail({ params }) {
         {isOwner && (
           <div className="flex gap-2">
             <Button variant="outline" size="sm" asChild>
-              <Link href={`/dashboard/projects/${resolvedParams.id}/edit`}>
+              <Link href={`/dashboard/projects/${params.id}/edit`}>
                 <Edit className="h-4 w-4 mr-2" />
                 Edit
               </Link>
             </Button>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-destructive"
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    your project and all associated data including metrics,
-                    tasks, and marketplace listings.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel disabled={deleting}>
-                    Cancel
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleDelete}
-                    disabled={deleting}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  >
-                    {deleting ? "Deleting..." : "Yes, delete project"}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <Button variant="outline" size="sm" className="text-destructive">
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete
+            </Button>
           </div>
         )}
       </div>
@@ -296,7 +161,6 @@ export default function ProjectDetail({ params }) {
             {project.repo_url && (
               <div className="flex items-center gap-2">
                 <Github className="h-4 w-4 text-muted-foreground" />
-
                 <a
                   href={project.repo_url}
                   target="_blank"
