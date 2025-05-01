@@ -29,26 +29,16 @@ export default function ProjectDetail({ params }) {
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [resolvedParams, setResolvedParams] = useState(null);
-
-  // First, resolve the params
-  useEffect(() => {
-    const resolveParams = async () => {
-      const resolved = await params;
-      setResolvedParams(resolved);
-    };
-    resolveParams();
-  }, [params]);
 
   useEffect(() => {
     const fetchProject = async () => {
-      if (!user || !resolvedParams) return;
+      if (!user) return;
 
       try {
         const { data, error } = await supabase
           .from("projects")
           .select("*")
-          .eq("id", resolvedParams.id)
+          .eq("id", params.id)
           .single();
 
         if (error) {
@@ -66,7 +56,7 @@ export default function ProjectDetail({ params }) {
     };
 
     fetchProject();
-  }, [user, resolvedParams, supabase]);
+  }, [user, params.id, supabase]);
 
   const stageColors = {
     idea: "bg-yellow-100 text-yellow-800",
@@ -266,11 +256,9 @@ export default function ProjectDetail({ params }) {
                   buyers
                 </p>
               </div>
-              <Button asChild>
-                <Link href="/dashboard/marketplace/list">
-                  <ShoppingBag className="h-4 w-4 mr-2" />
-                  List Project
-                </Link>
+              <Button>
+                <ShoppingBag className="h-4 w-4 mr-2" />
+                List Project
               </Button>
             </div>
           </CardContent>
