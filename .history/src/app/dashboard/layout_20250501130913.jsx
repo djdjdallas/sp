@@ -12,7 +12,6 @@ import {
   ChevronRight,
   Menu,
   X,
-  BarChart,
 } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { Button } from "@/components/ui/button";
