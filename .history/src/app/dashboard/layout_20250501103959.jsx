@@ -37,7 +37,7 @@ export default function DashboardLayout({ children }) {
           .from("users")
           .select("*")
           .eq("id", user.id)
-          .limit(1); // Add limit to handle multiple rows
+          .single();
 
         if (error) {
           console.error("Error fetching profile:", error.message || error);
@@ -59,18 +59,7 @@ export default function DashboardLayout({ children }) {
             });
           }
         } else {
-          // Use the first row if multiple are returned
-          if (data && data.length > 0) {
-            setProfile(data[0]);
-          } else {
-            // No profile exists, create one using user metadata
-            setProfile({
-              id: user.id,
-              email: user.email,
-              full_name: user.user_metadata?.full_name || null,
-              avatar_url: user.user_metadata?.avatar_url || null,
-            });
-          }
+          setProfile(data);
         }
       } catch (err) {
         console.error("Failed to fetch profile:", err);
