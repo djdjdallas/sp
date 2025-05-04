@@ -334,7 +334,7 @@ export default function EditProject({ params }) {
                     image_url: url,
                   });
                 }}
-                storageBucket="project-images"
+                storageBucket="project_images"
                 initialImage={formData.image_url}
               />
               <p className="text-xs text-muted-foreground">

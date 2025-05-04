@@ -30,7 +30,7 @@ export default function Home() {
         <div className="mt-12 relative w-full max-w-4xl">
           <div className="bg-gradient-to-b from-primary/20 to-background p-4 rounded-lg shadow-lg">
             <Image
-              src="/assets/project-metrics.png"
+              src="/dashboard-preview.png"
               alt="SideBuilds dashboard preview"
               width={1200}
               height={675}

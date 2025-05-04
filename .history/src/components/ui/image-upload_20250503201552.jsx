@@ -19,10 +19,9 @@ export function ImageUpload({
   onUploadComplete,
   storageBucket = "project-images",
   className,
-  initialImage,
 }) {
   const [uploading, setUploading] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState(initialImage || null);
+  const [previewUrl, setPreviewUrl] = useState(null);
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
   const supabase = createClient();
@@ -47,7 +46,7 @@ export function ImageUpload({
     setError(null);
 
     try {
-      // Create a local preview URL
+      // Create a preview URL
       const preview = URL.createObjectURL(file);
       setPreviewUrl(preview);
 
@@ -56,9 +55,8 @@ export function ImageUpload({
       const fileName = `${Math.random()
         .toString(36)
         .substring(2, 15)}.${fileExt}`;
-      const filePath = fileName;
+      const filePath = `${fileName}`;
 
-      // Upload file to Supabase storage
       const { error: uploadError, data } = await supabase.storage
         .from(storageBucket)
         .upload(filePath, file, {
@@ -67,28 +65,7 @@ export function ImageUpload({
         });
 
       if (uploadError) {
-        console.error("Supabase upload error:", {
-          message: uploadError.message,
-          error: uploadError.error,
-          statusCode: uploadError.statusCode,
-          ...uploadError,
-        });
-
-        // Check for specific error types
-        if (uploadError.message && uploadError.message.includes("policy")) {
-          throw new Error(
-            "Storage policy error: Please check your Supabase bucket policies"
-          );
-        } else if (
-          uploadError.message &&
-          uploadError.message.includes("not found")
-        ) {
-          throw new Error(
-            `Storage bucket "${storageBucket}" not found. Please create it in Supabase`
-          );
-        } else {
-          throw new Error(uploadError.message || "Failed to upload image");
-        }
+        throw uploadError;
       }
 
       // Get public URL
@@ -97,26 +74,16 @@ export function ImageUpload({
       } = supabase.storage.from(storageBucket).getPublicUrl(filePath);
 
       onUploadComplete?.(publicUrl);
-
-      // Clean up the object URL
-      URL.revokeObjectURL(preview);
     } catch (err) {
       console.error("Upload error:", err);
       setError(err.message || "Failed to upload image");
       setPreviewUrl(null);
-      // Clean up the object URL on error
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
     } finally {
       setUploading(false);
     }
   };
 
   const handleRemove = () => {
-    if (previewUrl && previewUrl.startsWith("blob:")) {
-      URL.revokeObjectURL(previewUrl);
-    }
     setPreviewUrl(null);
     setError(null);
     if (fileInputRef.current) {

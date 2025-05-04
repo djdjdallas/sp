@@ -12,7 +12,7 @@ import { Upload, X, ImageIcon } from "lucide-react";
  * A component for uploading images to Supabase Storage with preview functionality.
  *
  * @param {Function} onUploadComplete - Callback when upload is successful
- * @param {string} storageBucket - Supabase storage bucket name (default: "project-images")
+ * @param {string} storageBucket - Supabase storage bucket name (default: "project_images")
  * @param {string} className - Additional CSS classes
  */
 export function ImageUpload({

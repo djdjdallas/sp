@@ -171,11 +171,11 @@ export default function ProjectDetail({ params }) {
 
       // If project image exists, optionally delete it from storage
       if (project.image_url) {
-        const imagePathMatch = project.image_url.match(/project-images\/(.+)$/);
+        const imagePathMatch = project.image_url.match(/project_images\/(.+)$/);
         if (imagePathMatch && imagePathMatch[1]) {
           const imagePath = imagePathMatch[1];
           const { error: storageError } = await supabase.storage
-            .from("project-images")
+            .from("project_images")
             .remove([imagePath]);
 
           if (storageError) {

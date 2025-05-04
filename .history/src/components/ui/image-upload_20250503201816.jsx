@@ -14,6 +14,7 @@ import { Upload, X, ImageIcon } from "lucide-react";
  * @param {Function} onUploadComplete - Callback when upload is successful
  * @param {string} storageBucket - Supabase storage bucket name (default: "project-images")
  * @param {string} className - Additional CSS classes
+ * @param {string} initialImage - Initial image URL to display
  */
 export function ImageUpload({
   onUploadComplete,
@@ -47,7 +48,7 @@ export function ImageUpload({
     setError(null);
 
     try {
-      // Create a local preview URL
+      // Create a preview URL
       const preview = URL.createObjectURL(file);
       setPreviewUrl(preview);
 
@@ -56,9 +57,22 @@ export function ImageUpload({
       const fileName = `${Math.random()
         .toString(36)
         .substring(2, 15)}.${fileExt}`;
-      const filePath = fileName;
+      const filePath = `${fileName}`;
 
-      // Upload file to Supabase storage
+      // First, let's check if the bucket exists
+      const { data: buckets, error: bucketsError } =
+        await supabase.storage.listBuckets();
+
+      if (bucketsError) {
+        console.error("Error listing buckets:", bucketsError);
+        throw new Error(
+          `Failed to list storage buckets: ${bucketsError.message}`
+        );
+      }
+
+      console.log("Available buckets:", buckets);
+      console.log("Attempting to upload to bucket:", storageBucket);
+
       const { error: uploadError, data } = await supabase.storage
         .from(storageBucket)
         .upload(filePath, file, {
@@ -67,56 +81,38 @@ export function ImageUpload({
         });
 
       if (uploadError) {
-        console.error("Supabase upload error:", {
-          message: uploadError.message,
-          error: uploadError.error,
-          statusCode: uploadError.statusCode,
-          ...uploadError,
-        });
-
-        // Check for specific error types
-        if (uploadError.message && uploadError.message.includes("policy")) {
-          throw new Error(
-            "Storage policy error: Please check your Supabase bucket policies"
-          );
-        } else if (
-          uploadError.message &&
-          uploadError.message.includes("not found")
-        ) {
-          throw new Error(
-            `Storage bucket "${storageBucket}" not found. Please create it in Supabase`
-          );
-        } else {
-          throw new Error(uploadError.message || "Failed to upload image");
-        }
+        console.error("Upload error details:", uploadError);
+        throw new Error(
+          `Upload failed: ${uploadError.message || "Unknown error"}`
+        );
       }
+
+      if (!data) {
+        throw new Error("Upload succeeded but no data returned");
+      }
+
+      console.log("Upload successful, data:", data);
 
       // Get public URL
       const {
         data: { publicUrl },
       } = supabase.storage.from(storageBucket).getPublicUrl(filePath);
 
-      onUploadComplete?.(publicUrl);
+      console.log("Public URL:", publicUrl);
 
-      // Clean up the object URL
-      URL.revokeObjectURL(preview);
+      onUploadComplete?.(publicUrl);
     } catch (err) {
-      console.error("Upload error:", err);
+      console.error("Full error details:", err);
+      console.error("Error message:", err.message);
+      console.error("Error stack:", err.stack);
       setError(err.message || "Failed to upload image");
       setPreviewUrl(null);
-      // Clean up the object URL on error
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
     } finally {
       setUploading(false);
     }
   };
 
   const handleRemove = () => {
-    if (previewUrl && previewUrl.startsWith("blob:")) {
-      URL.revokeObjectURL(previewUrl);
-    }
     setPreviewUrl(null);
     setError(null);
     if (fileInputRef.current) {
