@@ -2,14 +2,12 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, CheckCircle2, Flame, Trophy, Loader2 } from "lucide-react";
+import { Calendar, CheckCircle2, Flame, Trophy } from "lucide-react";
 import {
   differenceInCalendarDays,
   format,
   startOfToday,
   parseISO,
-  isYesterday,
-  isToday,
 } from "date-fns";
 import { createClient } from "@/lib/supabase/client";
 
@@ -21,25 +19,20 @@ export function StreakTracker({ userId }) {
     loading: true,
   });
   const [milestones, setMilestones] = useState([]);
-  const [loggingActivity, setLoggingActivity] = useState(false);
   const supabase = createClient();
 
   useEffect(() => {
-    if (userId) {
-      fetchStreakData();
-    }
+    fetchStreakData();
   }, [userId]);
 
   const fetchStreakData = async () => {
-    if (!userId) return;
-
     try {
       // Fetch user's streak data
       const { data: streakInfo, error: streakError } = await supabase
         .from("user_streaks")
         .select("*")
         .eq("user_id", userId)
-        .maybeSingle(); // Use maybeSingle instead of single to handle no records
+        .single();
 
       if (streakError && streakError.code !== "PGRST116") {
         console.error("Error fetching streak data:", streakError);
@@ -48,35 +41,18 @@ export function StreakTracker({ userId }) {
 
       // Check if user has logged activity today
       const today = startOfToday();
-      const { data: todayLogs, error: logError } = await supabase
+      const { data: todayLog, error: logError } = await supabase
         .from("activity_logs")
         .select("*")
         .eq("user_id", userId)
         .gte("created_at", today.toISOString())
-        .limit(1);
-
-      if (logError && logError.code !== "PGRST116") {
-        console.error("Error fetching activity logs:", logError);
-      }
-
-      // If there's no streak data at all, set defaults
-      let currentStreak = streakInfo?.current_streak || 0;
-      let longestStreak = streakInfo?.longest_streak || 0;
-
-      // If there's streak data, check if we need to reset the streak
-      if (streakInfo && streakInfo.last_activity_date) {
-        const lastActivity = new Date(streakInfo.last_activity_date);
-
-        // If last activity was not today or yesterday, reset current streak
-        if (!isToday(lastActivity) && !isYesterday(lastActivity)) {
-          currentStreak = 0; // Reset streak but keep the longest streak record
-        }
-      }
+        .limit(1)
+        .single();
 
       setStreakData({
-        currentStreak,
-        longestStreak,
-        todayCompleted: todayLogs && todayLogs.length > 0,
+        currentStreak: streakInfo?.current_streak || 0,
+        longestStreak: streakInfo?.longest_streak || 0,
+        todayCompleted: !!todayLog,
         loading: false,
       });
 
@@ -104,32 +80,11 @@ export function StreakTracker({ userId }) {
       setMilestones(achieved);
     } catch (error) {
       console.error("Error in fetchStreakData:", error);
-      setStreakData((prev) => ({ ...prev, loading: false }));
     }
   };
 
   const logTodayActivity = async () => {
-    if (!userId || loggingActivity || streakData.todayCompleted) return;
-
-    setLoggingActivity(true);
     try {
-      // First, check if there's already an activity log for today
-      const today = startOfToday();
-      const { data: existingLogs, error: checkError } = await supabase
-        .from("activity_logs")
-        .select("id")
-        .eq("user_id", userId)
-        .gte("created_at", today.toISOString())
-        .limit(1);
-
-      if (checkError) throw checkError;
-
-      // If already logged today, don't log again
-      if (existingLogs && existingLogs.length > 0) {
-        await fetchStreakData();
-        return;
-      }
-
       // Log activity
       const { error: logError } = await supabase.from("activity_logs").insert({
         user_id: userId,
@@ -139,50 +94,14 @@ export function StreakTracker({ userId }) {
 
       if (logError) throw logError;
 
-      // Get current streak data
-      const { data: currentStreakData, error: fetchError } = await supabase
-        .from("user_streaks")
-        .select("*")
-        .eq("user_id", userId)
-        .maybeSingle();
-
-      if (fetchError) throw fetchError;
-
-      let newStreak = 1;
-      let newLongest = 1;
-
-      // If there's existing streak data, calculate new streak
-      if (currentStreakData) {
-        const lastActivityDate = currentStreakData.last_activity_date
-          ? new Date(currentStreakData.last_activity_date)
-          : null;
-
-        if (lastActivityDate) {
-          // If last activity was yesterday, continue the streak
-          if (isYesterday(lastActivityDate)) {
-            newStreak = currentStreakData.current_streak + 1;
-            newLongest = Math.max(newStreak, currentStreakData.longest_streak);
-          }
-          // If last activity was today, keep the same streak
-          else if (isToday(lastActivityDate)) {
-            newStreak = currentStreakData.current_streak;
-            newLongest = currentStreakData.longest_streak;
-          }
-          // If last activity was more than 1 day ago, reset streak to 1
-          else {
-            newStreak = 1;
-            newLongest = Math.max(1, currentStreakData.longest_streak);
-          }
-        }
-      }
-
-      // Update streak data
+      // Update streak (this would be better handled with a database function)
+      const newStreak = streakData.currentStreak + 1;
       const { error: streakError } = await supabase
         .from("user_streaks")
         .upsert({
           user_id: userId,
           current_streak: newStreak,
-          longest_streak: newLongest,
+          longest_streak: Math.max(newStreak, streakData.longestStreak),
           last_activity_date: new Date().toISOString(),
         });
 
@@ -191,21 +110,11 @@ export function StreakTracker({ userId }) {
       await fetchStreakData();
     } catch (error) {
       console.error("Error logging activity:", error);
-      // You might want to show an error message to the user here
-    } finally {
-      setLoggingActivity(false);
     }
   };
 
   if (streakData.loading) {
-    return (
-      <Card>
-        <CardContent className="flex items-center justify-center p-6">
-          <Loader2 className="h-6 w-6 animate-spin mr-2" />
-          Loading streak data...
-        </CardContent>
-      </Card>
-    );
+    return <div>Loading streak data...</div>;
   }
 
   return (
@@ -257,19 +166,8 @@ export function StreakTracker({ userId }) {
               Completed
             </Badge>
           ) : (
-            <Button
-              onClick={logTodayActivity}
-              size="sm"
-              disabled={loggingActivity}
-            >
-              {loggingActivity ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Logging...
-                </>
-              ) : (
-                "Log Work"
-              )}
+            <Button onClick={logTodayActivity} size="sm">
+              Log Work
             </Button>
           )}
         </div>
