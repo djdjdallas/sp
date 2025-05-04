@@ -32,7 +32,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { ProjectAIAssistant } from "@/components/ai/project-ai-assistant";
 
 export default function ProjectDetail({ params }) {
   const { user } = useAuth();
@@ -422,14 +421,6 @@ export default function ProjectDetail({ params }) {
           </CardContent>
         </Card>
       )}
-
-      {/* AI Assistant Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <ProjectAIAssistant project={project} />
-
-        {/* You can add another component here in the second column */}
-        <div>{/* Placeholder for future component */}</div>
-      </div>
 
       {/* Marketplace Section */}
       {isOwner && !project.for_sale && (

@@ -315,7 +315,7 @@ export default function SettingsPage() {
                       onUploadComplete={(url) => {
                         setProfile({ ...profile, avatar_url: url });
                       }}
-                      storageBucket="user-avatars"
+                      storageBucket="user_avatars"
                     />
                   </div>
                 </div>
