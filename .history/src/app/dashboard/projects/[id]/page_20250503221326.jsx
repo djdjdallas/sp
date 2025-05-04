@@ -20,7 +20,6 @@ import {
   Lock,
   LockOpen,
   ShoppingBag,
-  Brain,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -33,7 +32,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { ProjectAIModal } from "@/components/ai/project-ai-modal";
+import { ProjectAIAssistant } from "@/components/ai/project-ai-assistant";
 
 export default function ProjectDetail({ params }) {
   const { user } = useAuth();
@@ -425,28 +424,11 @@ export default function ProjectDetail({ params }) {
       )}
 
       {/* AI Assistant Section */}
-      <div className="mb-8">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-semibold">AI Project Assistant</h3>
-                <p className="text-sm text-muted-foreground">
-                  Get AI-powered insights and recommendations for your project
-                </p>
-              </div>
-              <ProjectAIModal
-                project={project}
-                trigger={
-                  <Button>
-                    <Brain className="h-4 w-4 mr-2" />
-                    Open AI Assistant
-                  </Button>
-                }
-              />
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <ProjectAIAssistant project={project} />
+
+        {/* You can add another component here in the second column */}
+        <div>{/* Placeholder for future component */}</div>
       </div>
 
       {/* Marketplace Section */}
