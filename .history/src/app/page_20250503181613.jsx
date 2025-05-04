@@ -203,32 +203,68 @@ export default function Home() {
       </section>
 
       {/* Founder Story Section */}
+      import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+
+export default function Home() {
+  return (
+    <div className="container mx-auto px-4">
+      {/* Hero Section */}
+      <section className="py-16 md:py-24 flex flex-col items-center text-center">
+        <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
+          SideBuilds
+        </h1>
+        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-8">
+          Less hassle, more hustle. Track, organize, and sell your side projects
+          in one place.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Button asChild size="lg">
+            <Link href="/auth/register">Get Started Free</Link>
+          </Button>
+          <Button variant="outline" size="lg" asChild>
+            <Link href="#features">Learn More</Link>
+          </Button>
+        </div>
+        
+        <p className="mt-6 text-sm text-muted-foreground">
+          No credit card required • $9/month
+        </p>
+
+        <div className="mt-12 relative w-full max-w-4xl">
+          <div className="bg-gradient-to-b from-primary/20 to-background p-4 rounded-lg shadow-lg">
+            <Image
+              src="/dashboard-preview.png"
+              alt="SideBuilds dashboard preview"
+              width={1200}
+              height={675}
+              className="rounded-md border shadow-sm"
+              priority
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Founder Story Section */}
       <section className="py-16 md:py-24">
         <div className="max-w-4xl mx-auto">
           <div className="bg-muted/30 border rounded-lg p-8 md:p-12">
             <div className="grid md:grid-cols-2 gap-8 items-center">
               <div>
-                <h2 className="text-2xl font-bold mb-6">
-                  Why I Built SideBuilds
-                </h2>
+                <h2 className="text-2xl font-bold mb-6">Why I Built SideBuilds</h2>
                 <div className="space-y-4 text-lg">
-                  <p>Hi, I'm Dominick! 👋</p>
                   <p>
-                    Like many developers diving into the indie hacking world, I
-                    found myself juggling multiple side projects. My ideas list
-                    grew faster than I could build, and I started losing track
-                    of which projects I was actually working on.
+                    Hi, I'm Dominick! 👋
                   </p>
                   <p>
-                    I needed a solution to organize my scattered projects, so I
-                    built one. But then I realized - if I'm having this problem,
-                    other indie developers probably are too.
+                    Like many developers diving into the indie hacking world, I found myself juggling multiple side projects. My ideas list grew faster than I could build, and I started losing track of which projects I was actually working on.
                   </p>
                   <p>
-                    That's how SideBuilds was born: a tool to help builders like
-                    us stay organized, track progress, and even sell our
-                    projects when they're ready. Along the way, we're building
-                    an amazing community of creators who get it.
+                    I needed a solution to organize my scattered projects, so I built one. But then I realized - if I'm having this problem, other indie developers probably are too.
+                  </p>
+                  <p>
+                    That's how SideBuilds was born: a tool to help builders like us stay organized, track progress, and even sell our projects when they're ready. Along the way, we're building an amazing community of creators who get it.
                   </p>
                   <div className="mt-8">
                     <Button asChild>
@@ -240,7 +276,7 @@ export default function Home() {
               <div className="flex justify-center md:justify-end">
                 <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-lg overflow-hidden border-2 border-primary/20">
                   <Image
-                    src="/assets/dominick_avatar.jpg"
+                    src="/dominick-photo.jpg"
                     alt="Dominick - Founder of SideBuilds"
                     fill
                     className="object-cover"
@@ -254,6 +290,7 @@ export default function Home() {
         </div>
       </section>
 
+      
       {/* Testimonials Section */}
       {/* <section className="py-16 md:py-24">
         <div className="text-center mb-16">

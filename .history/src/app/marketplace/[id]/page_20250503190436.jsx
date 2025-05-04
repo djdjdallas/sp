@@ -124,30 +124,6 @@ export default function MarketplaceListingDetailPage() {
 
   const isOwner = user?.id === listing?.projects?.user_id;
 
-  // Helper function to safely format dates
-  const formatTimeAgo = (date) => {
-    if (!date) return "Unknown";
-    try {
-      const dateObj = new Date(date);
-      if (isNaN(dateObj.getTime())) return "Unknown";
-      return formatDistanceToNow(dateObj, { addSuffix: true });
-    } catch (error) {
-      return "Unknown";
-    }
-  };
-
-  // Helper function to safely format date
-  const formatDate = (date) => {
-    if (!date) return "Unknown";
-    try {
-      const dateObj = new Date(date);
-      if (isNaN(dateObj.getTime())) return "Unknown";
-      return dateObj.toLocaleDateString();
-    } catch (error) {
-      return "Unknown";
-    }
-  };
-
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -196,7 +172,10 @@ export default function MarketplaceListingDetailPage() {
                   {listing.projects?.stage}
                 </Badge>
                 <span className="text-muted-foreground">
-                  Listed {formatTimeAgo(listing.created_at)}
+                  Listed{" "}
+                  {formatDistanceToNow(new Date(listing.created_at), {
+                    addSuffix: true,
+                  })}
                 </span>
               </div>
             </div>
@@ -390,7 +369,10 @@ export default function MarketplaceListingDetailPage() {
                     {seller?.full_name || "Seller"}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Member since {formatDate(seller?.created_at)}
+                    Member since{" "}
+                    {seller?.created_at
+                      ? new Date(seller.created_at).toLocaleDateString()
+                      : "Unknown"}
                   </p>
                 </div>
               </div>
@@ -415,9 +397,9 @@ export default function MarketplaceListingDetailPage() {
                 <div>
                   <p className="text-sm text-muted-foreground">Project Age</p>
                   <p className="font-medium">
-                    {listing.projects?.created_at
-                      ? formatTimeAgo(listing.projects.created_at)
-                      : "Unknown"}
+                    {formatDistanceToNow(
+                      new Date(listing.projects?.created_at)
+                    )}
                   </p>
                 </div>
               </div>
@@ -427,7 +409,9 @@ export default function MarketplaceListingDetailPage() {
                 <div>
                   <p className="text-sm text-muted-foreground">Listed</p>
                   <p className="font-medium">
-                    {formatTimeAgo(listing.created_at)}
+                    {formatDistanceToNow(new Date(listing.created_at), {
+                      addSuffix: true,
+                    })}
                   </p>
                 </div>
               </div>

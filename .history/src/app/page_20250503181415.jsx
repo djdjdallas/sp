@@ -204,56 +204,31 @@ export default function Home() {
 
       {/* Founder Story Section */}
       <section className="py-16 md:py-24">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-3xl mx-auto">
           <div className="bg-muted/30 border rounded-lg p-8 md:p-12">
-            <div className="grid md:grid-cols-2 gap-8 items-center">
-              <div>
-                <h2 className="text-2xl font-bold mb-6">
-                  Why I Built SideBuilds
-                </h2>
-                <div className="space-y-4 text-lg">
-                  <p>Hi, I'm Dominick! 👋</p>
-                  <p>
-                    Like many developers diving into the indie hacking world, I
-                    found myself juggling multiple side projects. My ideas list
-                    grew faster than I could build, and I started losing track
-                    of which projects I was actually working on.
-                  </p>
-                  <p>
-                    I needed a solution to organize my scattered projects, so I
-                    built one. But then I realized - if I'm having this problem,
-                    other indie developers probably are too.
-                  </p>
-                  <p>
-                    That's how SideBuilds was born: a tool to help builders like
-                    us stay organized, track progress, and even sell our
-                    projects when they're ready. Along the way, we're building
-                    an amazing community of creators who get it.
-                  </p>
-                  <div className="mt-8">
-                    <Button asChild>
-                      <Link href="/auth/register">Join Our Community</Link>
-                    </Button>
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-center md:justify-end">
-                <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-lg overflow-hidden border-2 border-primary/20">
-                  <Image
-                    src="/assets/dominick_avatar.jpg"
-                    alt="Dominick - Founder of SideBuilds"
-                    fill
-                    className="object-cover"
-                    placeholder="blur"
-                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSEkMjU1LC0yMi4xODY6NTc4Pzs/OjdASUZFRkVHT0tPVlVWXVZfYWH/2wBDARUXFx4aHh4gICAhYTYxNmFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWH/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
-                  />
-                </div>
+            <h2 className="text-2xl font-bold mb-6">Why I Built SideBuilds</h2>
+            <div className="space-y-4 text-lg">
+              <p>My name is Dominick.</p>
+              <p>
+                As many developers have started on their indie dev journey, I
+                noticed that my build list was getting so long that I would
+                forget about projects that I was working on.
+              </p>
+              <p>
+                So I wanted to solve the problem for myself but thought it could
+                help others and also build a community in the meanwhile.
+              </p>
+              <div className="mt-8">
+                <Button asChild>
+                  <Link href="/auth/register">
+                    Start Tracking Your Projects
+                  </Link>
+                </Button>
               </div>
             </div>
           </div>
         </div>
       </section>
-
       {/* Testimonials Section */}
       {/* <section className="py-16 md:py-24">
         <div className="text-center mb-16">

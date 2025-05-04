@@ -38,7 +38,6 @@ export default function ProjectDetail({ params }) {
   const router = useRouter();
   const supabase = createClient();
   const [project, setProject] = useState(null);
-  const [metrics, setMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [resolvedParams, setResolvedParams] = useState(null);
@@ -59,40 +58,17 @@ export default function ProjectDetail({ params }) {
       if (!user || !resolvedParams) return;
 
       try {
-        // Fetch project details
-        const { data: projectData, error: projectError } = await supabase
+        const { data, error } = await supabase
           .from("projects")
           .select("*")
           .eq("id", resolvedParams.id)
           .single();
 
-        if (projectError) {
-          console.error("Error fetching project:", projectError);
-          setError(projectError.message);
-          return;
-        }
-
-        setProject(projectData);
-
-        // Fetch latest metrics for the project
-        const { data: metricsData, error: metricsError } = await supabase
-          .from("project_metrics")
-          .select("*")
-          .eq("project_id", resolvedParams.id)
-          .order("metric_date", { ascending: false })
-          .limit(1)
-          .single();
-
-        if (metricsError) {
-          // If no metrics exist yet, that's okay - we'll show zero values
-          if (metricsError.code === "PGRST116") {
-            console.log("No metrics found for this project");
-            setMetrics({ users: 0, traffic: 0, revenue: 0 });
-          } else {
-            console.error("Error fetching metrics:", metricsError);
-          }
+        if (error) {
+          console.error("Error fetching project:", error);
+          setError(error.message);
         } else {
-          setMetrics(metricsData);
+          setProject(data);
         }
       } catch (err) {
         console.error("Failed to fetch project:", err);
@@ -320,6 +296,7 @@ export default function ProjectDetail({ params }) {
             {project.repo_url && (
               <div className="flex items-center gap-2">
                 <Github className="h-4 w-4 text-muted-foreground" />
+
                 <a
                   href={project.repo_url}
                   target="_blank"
@@ -354,22 +331,15 @@ export default function ProjectDetail({ params }) {
           <CardContent className="space-y-4">
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">
-                {metrics?.users ? metrics.users.toLocaleString() : 0} Users
-              </span>
+              <span className="text-sm">0 Users</span>
             </div>
             <div className="flex items-center gap-2">
               <BarChart className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">
-                {metrics?.traffic ? metrics.traffic.toLocaleString() : 0} Visits
-              </span>
+              <span className="text-sm">0 Visits</span>
             </div>
             <div className="flex items-center gap-2">
               <DollarSign className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">
-                ${metrics?.revenue ? metrics.revenue.toFixed(2) : "0.00"}{" "}
-                Revenue
-              </span>
+              <span className="text-sm">$0 Revenue</span>
             </div>
           </CardContent>
         </Card>

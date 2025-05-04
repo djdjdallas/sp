@@ -240,7 +240,7 @@ export default function Home() {
               <div className="flex justify-center md:justify-end">
                 <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-lg overflow-hidden border-2 border-primary/20">
                   <Image
-                    src="/assets/dominick_avatar.jpg"
+                    src="/dominick-photo.jpg"
                     alt="Dominick - Founder of SideBuilds"
                     fill
                     className="object-cover"
